@@ -206,8 +206,8 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
             with open(f'{combinedPrefix}{numTrue + numFalse - 1}.{combinedSuffix}', 'w') as outFile:
                 printMRankedAlarms(outFile)
 
-            logging.info('Setting tuple {0} to value {1}'.format(t0, t0 in oracleQueries))
-            observe(t0, t0 in oracleQueries)
+            logging.info('Setting tuple {0} to value {1}'.format(t0, ground == 'TrueGround'))
+            observe(t0, ground == 'TrueGround')
 
     logging.info('Awaiting command')
     for command in sys.stdin:
