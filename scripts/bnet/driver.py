@@ -320,6 +320,7 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
 
             with open(os.path.join(outFileDir, statsFileName), 'w') as statsFile:
                 runAlarmCarousel(tolerance, minIters, maxIters, histLength, statsFile, combinedPrefix, combinedSuffix)
+            break
 
         elif cmdType == 'MAC':
             # 2i. Run a manual alarm carousel
