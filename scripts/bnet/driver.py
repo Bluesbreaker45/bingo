@@ -22,11 +22,14 @@ import subprocess
 import sys
 import time
 import re
+import os
+import glob
 
 dictFileName = sys.argv[1]
 fgFileName = sys.argv[2]
 baseQueriesFileName = sys.argv[3]
 oracleQueriesFileName = sys.argv[4]
+outFileDir = sys.argv[5] if len(sys.argv) >= 6 else '.'
 
 wrapperExecutable = './libdai/wrapper'
 
@@ -159,7 +162,7 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
                   file=statsFile)
             statsFile.flush()
 
-            with open('{0}{1}.{2}'.format(combinedPrefix, numTrue + numFalse - 1, combinedSuffix), 'w') as outFile:
+            with open(os.path.join(outFileDir, f'{combinedPrefix}{numTrue + numFalse - 1}.{combinedSuffix}'), 'w') as outFile:
                 printRankedAlarms(outFile)
 
             logging.info('Setting tuple {0} to value {1}'.format(t0, t0 in oracleQueries))
@@ -203,7 +206,7 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
                   file=statsFile)
             statsFile.flush()
 
-            with open(f'{combinedPrefix}{numTrue + numFalse - 1}.{combinedSuffix}', 'w') as outFile:
+            with open(os.path.join(outFileDir, f'{combinedPrefix}{numTrue + numFalse - 1}.{combinedSuffix}'), 'w') as outFile:
                 printMRankedAlarms(outFile)
 
             logging.info('Setting tuple {0} to value {1}'.format(t0, ground == 'TrueGround'))
@@ -277,7 +280,7 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
             # Output: Ranked list of alarms, in the format of combined.out. Printed to filename. Acknowledgment printed
             # to stdout.
             outFileName = components[0]
-            with open(outFileName, 'w') as outFile: printRankedAlarms(outFile)
+            with open(os.path.join(outFileDir, outFileName), 'w') as outFile: printRankedAlarms(outFile)
             print('P {0}'.format(outFileName))
 
         elif cmdType == 'HA':
@@ -308,7 +311,14 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
             assert 0 < tolerance and tolerance < 1
             assert 0 < histLength and histLength < minIters and minIters < maxIters
 
-            with open(statsFileName, 'w') as statsFile:
+            # make and clear output file directory
+            if not os.path.exists(outFileDir):
+                os.makedirs(outFileDir)
+            pattern = os.path.join(outFileDir, f"{combinedPrefix}*.{combinedSuffix}")
+            for filePath in glob.glob(pattern):
+                os.remove(filePath)
+
+            with open(os.path.join(outFileDir, statsFileName), 'w') as statsFile:
                 runAlarmCarousel(tolerance, minIters, maxIters, histLength, statsFile, combinedPrefix, combinedSuffix)
 
         elif cmdType == 'MAC':
@@ -329,7 +339,14 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
             assert 0 < tolerance and tolerance < 1
             assert 0 < histLength and histLength < minIters and minIters < maxIters
 
-            with open(statsFileName, 'w') as statsFile:
+            # make and clear output file directory
+            if not os.path.exists(outFileDir):
+                os.makedirs(outFileDir)
+            pattern = os.path.join(outFileDir, f"{combinedPrefix}*.{combinedSuffix}")
+            for filePath in glob.glob(pattern):
+                os.remove(filePath)
+
+            with open(os.path.join(outFileDir, statsFileName), 'w') as statsFile:
                 runManualAlarmCarousel(tolerance, minIters, maxIters, histLength, statsFile, combinedPrefix, combinedSuffix)
 
 
